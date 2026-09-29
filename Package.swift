@@ -26,20 +26,17 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/swift-atoms/swift-effect.git", branch: "main", traits: ["Dependency"]),
         .package(
-            url: "https://github.com/swift-molecules/swift-effect.git",
+            url: "https://github.com/swift-atoms/swift-dependency.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-molecules/swift-dependency.git",
+            url: "https://github.com/swift-atoms/swift-witness.git",
             branch: "main"
         ),
         .package(
-            url: "https://github.com/swift-molecules/swift-witness.git",
-            branch: "main"
-        ),
-        .package(
-            url: "https://github.com/swift-molecules/swift-async.git",
+            url: "https://github.com/swift-atoms/swift-async.git",
             branch: "main"
         ),
         .package(url: "https://github.com/swift-compositions/swift-clocks.git", branch: "main"),
