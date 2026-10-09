@@ -23,9 +23,9 @@ extension Effect.Test.Recorder {
 
         public let succeeded: Bool
 
-        public init<Recorded: Effect.`Protocol`, Performed: Effect.`Protocol` & Sendable>(
-            effectType: Recorded.Type,
-            effect: Performed,
+        public init(
+            effectType: any Effect.`Protocol`.Type,
+            effect: any Effect.`Protocol` & Sendable,
             timestamp: Clock.Continuous.Instant,
             succeeded: Bool
         ) {
