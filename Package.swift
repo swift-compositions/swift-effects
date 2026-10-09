@@ -52,14 +52,14 @@ let package = Package(
         .target(
             name: "Effects Built-in",
             dependencies: [
-                "Effects",
+                .target(name: "Effects"),
                 .product(name: "Witness", package: "swift-witness"),
             ]
         ),
         .target(
             name: "Effects Testing",
             dependencies: [
-                "Effects",
+                .target(name: "Effects"),
                 .product(name: "Async", package: "swift-async"),
                 .product(name: "Clocks", package: "swift-clocks"),
             ]
@@ -67,22 +67,22 @@ let package = Package(
         .testTarget(
             name: "Effects Tests",
             dependencies: [
-                "Effects",
-                "Effects Testing",
+                .target(name: "Effects"),
+                .target(name: "Effects Testing"),
             ]
         ),
         .testTarget(
             name: "Effects Built-in Tests",
             dependencies: [
-                "Effects Built-in",
-                "Effects Testing",
+                .target(name: "Effects Built-in"),
+                .target(name: "Effects Testing"),
                 .product(name: "Async", package: "swift-async"),
             ]
         ),
         .testTarget(
             name: "Effects Testing Tests",
             dependencies: [
-                "Effects Testing"
+                .target(name: "Effects Testing")
             ]
         ),
     ],

@@ -66,6 +66,8 @@ extension Effect.Exit.Handler.Key {
             while !Task.isCancelled {
                 await Task.yield()
 
+                // swift-linter:disable:next do throws for typed catch
+                // REASON: Task.sleep(for:) throws untyped `any Error`, so there is no `E` to name.
                 do {
                     try await Task.sleep(for: .seconds(3600))
                 } catch {}
