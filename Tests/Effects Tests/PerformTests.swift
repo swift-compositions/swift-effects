@@ -54,17 +54,17 @@ func `perform throws handler error`() async throws {
 
     let handler = Effect.Test.Handler<TestEffect>(throwing: TestError())
 
-    do {
+    do throws(TestError) {
         _ = try await Effect.Context.with(
             { handlers in
                 handlers[TestEffect.Key.self] = handler
             },
-            operation: {
+            operation: { () async throws(TestError) -> Int in
                 try await Effect.perform(TestEffect())
             }
         )
         Issue.record("Expected error to be thrown")
     } catch {
-        #expect(error is TestError)
+        #expect(error == TestError())
     }
 }
