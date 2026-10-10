@@ -21,7 +21,7 @@ extension Effect {
 
         let result: Result<E.Value, E.Failure> = await withTaskCancellationHandler(
             operation: {
-                await withCheckedContinuation(isolation: nil) {
+                await withCheckedContinuation {
                     (swiftContinuation: CheckedContinuation<Result<E.Value, E.Failure>, Never>) in
 
                     let task = Task {
@@ -67,7 +67,7 @@ extension Effect {
 
         return await withTaskCancellationHandler(
             operation: {
-                await withCheckedContinuation(isolation: nil) {
+                await withCheckedContinuation {
                     (swiftContinuation: CheckedContinuation<E.Value, Never>) in
 
                     let task = Task {

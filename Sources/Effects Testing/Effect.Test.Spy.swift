@@ -1,5 +1,5 @@
 import Async
-public import Clocks
+internal import Clocks
 public import Effects
 
 extension Effect.Test {
@@ -14,7 +14,7 @@ extension Effect.Test {
             self.inner = inner
         }
 
-        public init(_ handle: @escaping @Sendable (E) async -> Swift.Result<E.Value, E.Failure>) {
+        public init(_ handle: @escaping @Sendable (E) async -> Swift::Result<E.Value, E.Failure>) {
             self.inner = Effect.Test.Handler(handle)
         }
 
