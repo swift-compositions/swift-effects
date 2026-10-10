@@ -86,3 +86,27 @@ Additional verified routes:
 - Locked reference test command: `swift test --force-resolved-versions
   --build-system native -Xswiftc -target -Xswiftc arm64-apple-macosx27.0`
   passed all 15 tests, including exit statuses 0 and 37.
+
+The unchanged engine repeat also passed all 150 tests/119 suites at fa7c11c:
+run `20261010T134654Z-420cf032`, `engine-portable-repeat.*`. The nested processes
+completed in 365.572 seconds on the repeat; no build directory was removed and
+no tests were skipped. Cold and repeat testing therefore validate the recorded
+uniform macOS 27 profile on this machine. This is a scoped workaround for the
+SDK/ecosystem `System` module collision, not a general cross-platform repair.
+The native SwiftPM backend is deprecated upstream and remains an explicit
+support limitation of this candidate.
+
+The ecosystem audit measures the preserved checkouts under the ecosystem root.
+Those checkouts do not automatically include this isolated reference candidate
+or the isolated consumer migrations. Compare their recorded revisions before
+interpreting differences; audit findings on an older preserved checkout do not
+invalidate the result for this candidate's separately recorded source snapshot.
+
+The independent reference clone passed the combined gate at tool ddecf3a:
+`./scripts/check-compliance ../swift-linter` returned0 after the full policy
+and all15 tests. Exact setup/gate commands are in `fresh-reference-commands.json`.
+The maintained `scripts/tests/audit_integration.py` then passed all5 real cases:
+initial debt1 (the existing suppression), unchanged baseline0, new finding1,
+malformed source2, restored baseline0. Its evidence directory is
+`audit-workflow-20261010-155523-435e3e` in the fresh engine's `.local-linter`.
+The final tool pin0d625ba adds documentation to that tested implementation.
