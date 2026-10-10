@@ -1,5 +1,5 @@
 public import Clocks
-public import Effects
+public import Effect
 
 extension Effect.Test.Spy {
     public struct Invocation: Sendable {

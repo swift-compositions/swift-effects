@@ -1,6 +1,7 @@
 import Async
 internal import Clocks
-public import Effects
+public import Effect
+public import Cardinal
 
 extension Effect.Test {
 
@@ -18,16 +19,16 @@ extension Effect.Test.Recorder {
         _invocations.withLock { $0 }
     }
 
-    public var count: Int {
-        _invocations.withLock { $0.count }
+    public var count: Cardinal {
+        _invocations.withLock { Cardinal(UInt($0.count)) }
     }
 
-    internal func record<E: Effect.`Protocol`>(_ effect: E, succeeded: Bool) where E: Sendable {
+    internal func record<E: Effect.`Protocol`>(_ effect: E, status: Invocation.Status) where E: Sendable {
         let invocation = Invocation(
-            effectType: E.self,
+            type: E.self,
             effect: effect,
             timestamp: Clock.Continuous.now,
-            succeeded: succeeded
+            status: status
         )
         _invocations.withLock { $0.append(invocation) }
     }
@@ -42,9 +43,9 @@ extension Effect.Test.Recorder {
         }
     }
 
-    public func count<E: Effect.`Protocol`>(of type: E.Type) -> Int {
+    public func count<E: Effect.`Protocol`>(of type: E.Type) -> Cardinal {
         _invocations.withLock {
-            $0.filter { $0.effect is E }.count
+            Cardinal(UInt($0.filter { $0.effect is E }.count))
         }
     }
 }
@@ -53,15 +54,15 @@ extension Effect.Test.Recorder {
 
     public func handler<E: Effect.`Protocol`>(
         wrapping inner: Effect.Test.Handler<E>
-    ) -> RecordingHandler<E> where E: Sendable, E.Value: Copyable & Sendable {
-        RecordingHandler(recorder: self, inner: inner)
+    ) -> Handler<E> where E: Sendable, E.Value: Copyable & Sendable {
+        Handler(recorder: self, inner: inner)
     }
 
     public func handler<E: Effect.`Protocol`>(
         returning value: E.Value
-    ) -> RecordingHandler<E>
+    ) -> Handler<E>
     where E: Sendable, E.Value: Copyable & Sendable, E.Failure == Never {
-        RecordingHandler(recorder: self, inner: Effect.Test.Handler(returning: value))
+        Handler(recorder: self, inner: Effect.Test.Handler(returning: value))
     }
 
 

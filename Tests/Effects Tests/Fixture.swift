@@ -1,5 +1,6 @@
 import Dependency
 import Effects
+import Effect
 import Effects_Testing
 
 enum Fixture {}
@@ -18,7 +19,7 @@ extension Fixture {
     struct Value {}
 }
 
-extension Fixture.Value: Effect.`Protocol`, EffectWithHandler {
+extension Fixture.Value: Effect.`Protocol`, Effect.Handled.`Protocol` {
     typealias Value = Int
     typealias Failure = Never
     typealias HandlerKey = Key
@@ -38,7 +39,7 @@ extension Fixture {
     struct Throwing {}
 }
 
-extension Fixture.Throwing: Effect.`Protocol`, EffectWithHandler {
+extension Fixture.Throwing: Effect.`Protocol`, Effect.Handled.`Protocol` {
     typealias Value = Int
     typealias Failure = Fixture.Failure
     typealias HandlerKey = Key
@@ -58,7 +59,7 @@ extension Fixture.Cancellation {
     struct Infallible {}
 }
 
-extension Fixture.Cancellation.Infallible: Effect.`Protocol`, EffectWithHandler {
+extension Fixture.Cancellation.Infallible: Effect.`Protocol`, Effect.Handled.`Protocol` {
     typealias Value = Bool
     typealias Failure = Never
     typealias HandlerKey = Key
@@ -84,7 +85,7 @@ extension Fixture.Cancellation {
     struct Fallible {}
 }
 
-extension Fixture.Cancellation.Fallible: Effect.`Protocol`, EffectWithHandler {
+extension Fixture.Cancellation.Fallible: Effect.`Protocol`, Effect.Handled.`Protocol` {
     typealias Value = Bool
     typealias Failure = Fixture.Failure
     typealias HandlerKey = Key

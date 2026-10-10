@@ -26,6 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-effect.git", branch: "main", traits: ["Dependency"]),
         .package(
             url: "https://github.com/swift-atoms/swift-dependency.git",
@@ -52,6 +53,8 @@ let package = Package(
         .target(
             name: "Effects Built-in",
             dependencies: [
+                .product(name: "Effect", package: "swift-effect"),
+                .product(name: "Dependency", package: "swift-dependency"),
                 .target(name: "Effects"),
                 .product(name: "Witness", package: "swift-witness"),
             ]
@@ -59,7 +62,8 @@ let package = Package(
         .target(
             name: "Effects Testing",
             dependencies: [
-                .target(name: "Effects"),
+                .product(name: "Effect", package: "swift-effect"),
+                .product(name: "Cardinal", package: "swift-cardinal"),
                 .product(name: "Async", package: "swift-async"),
                 .product(name: "Clocks", package: "swift-clocks"),
             ]
@@ -67,6 +71,8 @@ let package = Package(
         .testTarget(
             name: "Effects Tests",
             dependencies: [
+                .product(name: "Dependency", package: "swift-dependency"),
+                .product(name: "Effect", package: "swift-effect"),
                 .target(name: "Effects"),
                 .target(name: "Effects Testing"),
             ]
@@ -74,6 +80,7 @@ let package = Package(
         .testTarget(
             name: "Effects Built-in Tests",
             dependencies: [
+                .product(name: "Effect", package: "swift-effect"),
                 .target(name: "Effects Built-in"),
                 .target(name: "Effects Testing"),
                 .product(name: "Async", package: "swift-async"),
@@ -82,6 +89,8 @@ let package = Package(
         .testTarget(
             name: "Effects Testing Tests",
             dependencies: [
+                .product(name: "Cardinal", package: "swift-cardinal"),
+                .product(name: "Effect", package: "swift-effect"),
                 .target(name: "Effects Testing")
             ]
         ),

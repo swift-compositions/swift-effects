@@ -1,4 +1,5 @@
 public import Effects
+public import Effect
 
 extension Effect {
 
@@ -12,7 +13,7 @@ extension Effect {
     }
 }
 
-extension Effect.Exit: Effect.`Protocol`, EffectWithHandler {
+extension Effect.Exit: Effect.`Protocol`, Effect.Handled.`Protocol` {
     public typealias Value = Never
     public typealias Failure = Never
     public typealias HandlerKey = Handler.Key

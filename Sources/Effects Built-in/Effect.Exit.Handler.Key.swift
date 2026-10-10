@@ -1,4 +1,5 @@
-public import Effects
+public import Effect
+public import Dependency
 
 extension Effect.Exit.Handler {
 

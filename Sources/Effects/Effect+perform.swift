@@ -1,4 +1,4 @@
-import Dependency
+public import Dependency
 public import Effect
 
 extension Effect {
@@ -9,7 +9,7 @@ extension Effect {
         _ effect: E
     ) async throws(E.Failure) -> E.Value
     where
-        E: EffectWithHandler,
+        E: Effect.Handled.`Protocol`,
         E.Value: Copyable,
         E.HandlerKey.Value: Copyable
     {
@@ -54,7 +54,7 @@ extension Effect {
         _ effect: E
     ) async -> E.Value
     where
-        E: EffectWithHandler,
+        E: Effect.Handled.`Protocol`,
         E.Failure == Never,
         E.Value: Copyable,
         E.HandlerKey.Value: Copyable

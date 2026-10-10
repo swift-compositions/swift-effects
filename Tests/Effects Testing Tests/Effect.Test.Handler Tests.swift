@@ -1,4 +1,4 @@
-import Effects
+import Effect
 import Effects_Testing
 import Testing
 

@@ -1,6 +1,6 @@
 import Async
 internal import Clocks
-public import Effects
+public import Effect
 
 extension Effect.Test {
 
@@ -64,18 +64,6 @@ extension Effect.Test.Spy where E.Value == Void, E.Failure == Never {
 extension Effect.Test.Spy {
     public var invocations: [Invocation] {
         _invocations.withLock { $0 }
-    }
-
-    public var callCount: Int {
-        _invocations.withLock { $0.count }
-    }
-
-    public var lastInvocation: Invocation? {
-        _invocations.withLock { $0.last }
-    }
-
-    public var firstInvocation: Invocation? {
-        _invocations.withLock { $0.first }
     }
 
     private func record(effect: E, outcome: Effect.Outcome<E.Value, E.Failure>) {

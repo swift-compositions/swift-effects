@@ -1,4 +1,4 @@
-public import Effects
+public import Effect
 
 extension Effect.Test {
 

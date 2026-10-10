@@ -1,7 +1,7 @@
-public import Effects
+public import Effect
 
 extension Effect.Test.Recorder {
-    public struct RecordingHandler<E: Effect.`Protocol`>: Sendable
+    public struct Handler<E: Effect.`Protocol`>: Sendable
     where E: Sendable, E.Value: Copyable & Sendable {
         private let recorder: Effect.Test.Recorder
         private let inner: Effect.Test.Handler<E>
@@ -15,7 +15,7 @@ extension Effect.Test.Recorder {
     }
 }
 
-extension Effect.Test.Recorder.RecordingHandler: Effect.Handler.`Protocol` {
+extension Effect.Test.Recorder.Handler: Effect.Handler.`Protocol` {
     public typealias Handled = E
     public func handle(
         _ effect: borrowing E,
@@ -24,12 +24,12 @@ extension Effect.Test.Recorder.RecordingHandler: Effect.Handler.`Protocol` {
 
         let recordedEffect = copy effect
         let wrapped = continuation.onResume { [recorder] result in
-            let succeeded: Bool
+            let status: Effect.Test.Recorder.Invocation.Status
             switch result {
-            case .success: succeeded = true
-            case .failure: succeeded = false
+            case .success: status = .success
+            case .failure: status = .failure
             }
-            recorder.record(recordedEffect, succeeded: succeeded)
+            recorder.record(recordedEffect, status: status)
         }
 
         await inner.handle(effect, continuation: wrapped)

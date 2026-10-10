@@ -1,4 +1,4 @@
-import Effect
+public import Effect
 
 extension Effect.Perform.Dispatch {
     @usableFromInline
