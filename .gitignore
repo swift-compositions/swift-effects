@@ -31,3 +31,4 @@
 !/scripts
 /scripts/*
 !/scripts/check-compliance
+!/COMPLIANCE-VERIFICATION.md

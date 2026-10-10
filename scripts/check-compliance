@@ -25,7 +25,6 @@ def main():
         print(f'Missing {cli}; follow the README setup first.', file=sys.stderr)
         return 3
     policy_path = PACKAGE / 'compliance-policy.json'
-    policy = json.loads(policy_path.read_text())
     command = [str(cli)]
     if args.config:
         command += ['--config', str(args.config.expanduser().resolve())]
@@ -33,6 +32,7 @@ def main():
     code = subprocess.run(command).returncode
     if code:
         return code if code in (1, 2, 3, 64) else 3
+    policy = json.loads(policy_path.read_text())
     lock = PACKAGE / 'Package.resolved'
     before = lock.read_bytes()
     command = ['swift', 'test', '--force-resolved-versions', '--build-system', policy['toolchain']['buildSystem'],
@@ -42,7 +42,7 @@ def main():
     if code or lock.read_bytes() != before:
         print('Compliance incomplete: package build/tests failed or dependency lock changed.', file=sys.stderr)
         return 3
-    print('COMPLIANCE VERIFIED: full pinned lint policy and package tests passed.')
+    print('REFERENCE GATE PASSED: full pinned lint policy and package tests passed.')
     return 0
 
 
