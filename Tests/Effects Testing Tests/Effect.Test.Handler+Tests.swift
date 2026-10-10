@@ -2,18 +2,18 @@ import Effects
 import Effects_Testing
 import Testing
 
-struct TestEffect: Effect.`Protocol` {
+struct Probe: Effect.`Protocol` {
     let input: Int
 }
 
-extension TestEffect {
+extension Probe {
     typealias Value = String
     typealias Failure = Never
 }
 
 @Test
 func `handler returns fixed value`() async {
-    let handler = Effect.Test.Handler<TestEffect>(returning: "hello")
+    let handler = Effect.Test.Handler<Probe>(returning: "hello")
 
     let continuation = Effect.Continuation.one {
         @Sendable (result: Result<String, Never>) async in
@@ -23,12 +23,12 @@ func `handler returns fixed value`() async {
         }
     }
 
-    await handler.handle(TestEffect(input: 42), continuation: continuation)
+    await handler.handle(Probe(input: 42), continuation: continuation)
 }
 
 @Test
 func `handler returns computed value`() async {
-    let handler = Effect.Test.Handler<TestEffect>(returning: { effect in
+    let handler = Effect.Test.Handler<Probe>(returning: { effect in
         "value: \(effect.input)"
     })
 
@@ -40,5 +40,5 @@ func `handler returns computed value`() async {
         }
     }
 
-    await handler.handle(TestEffect(input: 42), continuation: continuation)
+    await handler.handle(Probe(input: 42), continuation: continuation)
 }

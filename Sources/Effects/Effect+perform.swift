@@ -17,7 +17,7 @@ extension Effect {
 
         let transfer = Self.Perform.Transfer(effect)
 
-        let dispatchTask = Self.Perform.TaskBox()
+        let dispatchTask = Self.Perform.Dispatch()
 
         let result: Result<E.Value, E.Failure> = await withTaskCancellationHandler(
             operation: {
@@ -63,7 +63,7 @@ extension Effect {
 
         let transfer = Self.Perform.Transfer(effect)
 
-        let dispatchTask = Self.Perform.TaskBox()
+        let dispatchTask = Self.Perform.Dispatch()
 
         return await withTaskCancellationHandler(
             operation: {
