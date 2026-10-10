@@ -6,28 +6,14 @@ import Testing
 @Test
 func `perform returns handler value`() async {
 
-    struct TestEffect: Effect.`Protocol`, EffectWithHandler {
-        typealias Value = Int
-        typealias Failure = Never
-        typealias HandlerKey = Key
-
-        struct Key: Dependency.Key {
-            typealias Value = Effect.Test.Handler<TestEffect>
-            static var liveValue: Effect.Test.Handler<TestEffect> {
-                Effect.Test.Handler(returning: 0)
-            }
-            static var testValue: Effect.Test.Handler<TestEffect> { liveValue }
-        }
-    }
-
-    let handler = Effect.Test.Handler<TestEffect>(returning: 42)
+    let handler = Effect.Test.Handler<Fixture.Value>(returning: 42)
 
     let result = await Effect.Context.with(
         { handlers in
-            handlers[TestEffect.Key.self] = handler
+            handlers[Fixture.Value.Key.self] = handler
         },
         operation: {
-            await Effect.perform(TestEffect())
+            await Effect.perform(Fixture.Value())
         }
     )
 
@@ -36,35 +22,19 @@ func `perform returns handler value`() async {
 
 @Test
 func `perform throws handler error`() async throws {
-    struct TestError: Swift.Error, Equatable {}
+    let handler = Effect.Test.Handler<Fixture.Throwing>(throwing: Fixture.Failure())
 
-    struct TestEffect: Effect.`Protocol`, EffectWithHandler {
-        typealias Value = Int
-        typealias Failure = TestError
-        typealias HandlerKey = Key
-
-        struct Key: Dependency.Key {
-            typealias Value = Effect.Test.Handler<TestEffect>
-            static var liveValue: Effect.Test.Handler<TestEffect> {
-                Effect.Test.Handler(throwing: TestError())
-            }
-            static var testValue: Effect.Test.Handler<TestEffect> { liveValue }
-        }
-    }
-
-    let handler = Effect.Test.Handler<TestEffect>(throwing: TestError())
-
-    do throws(TestError) {
+    do throws(Fixture.Failure) {
         _ = try await Effect.Context.with(
             { handlers in
-                handlers[TestEffect.Key.self] = handler
+                handlers[Fixture.Throwing.Key.self] = handler
             },
-            operation: { () async throws(TestError) -> Int in
-                try await Effect.perform(TestEffect())
+            operation: { () async throws(Fixture.Failure) -> Int in
+                try await Effect.perform(Fixture.Throwing())
             }
         )
         Issue.record("Expected error to be thrown")
     } catch {
-        #expect(error == TestError())
+        #expect(error == Fixture.Failure())
     }
 }
