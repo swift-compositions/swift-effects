@@ -24,3 +24,10 @@
 /Tests/**
 !/Tests/**/
 !/Tests/**/*.swift
+
+# Reviewed local full-bundle compliance contract.
+!/compliance-policy.json
+!/Package.resolved
+!/scripts
+/scripts/*
+!/scripts/check-compliance

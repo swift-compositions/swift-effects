@@ -155,3 +155,68 @@ Run `swift test` from this package directory. The suite includes child-process
 checks proving that the live exit effect terminates with both status 0 and status
 37, rather than trapping. The cancellation, recorder, and handler assertions run
 in the same suite.
+
+## Full compliance gate
+
+The candidate in this branch is the reference for the complete 124-rule
+`institute` bundle, not just the local linter's default three rules. The policy
+pins all six tool repositories, the resolved tool graph, Swift/Xcode versions,
+and the macOS 27 compiler target. One existing typed-catch suppression is
+explicitly reviewed and bound to its complete source file. New findings,
+unmeasured source, and changed suppression context fail the gate.
+
+Requirements: macOS 27 on Apple Silicon, full Xcode 27.1 with Swift 6.4, Python
+3.9+, Git, and network access for the initial dependency downloads. These are
+local candidate commits; they have not been published as production releases.
+Clone this candidate and the delivered `swift-linter` candidate into any new
+directory, using their local Git paths as clone sources until published:
+
+```sh
+git clone --no-local /path/to/delivered/swift-effects swift-effects
+git clone --no-local /path/to/delivered/swift-linter swift-linter
+cd swift-linter
+# Check out the engine commit recorded in ../swift-effects/compliance-policy.json.
+git checkout --detach "$(python3 -c 'import json; print(json.load(open("../swift-effects/compliance-policy.json"))["sources"]["swift-linter"])')"
+./scripts/lint-local setup --policy ../swift-effects/compliance-policy.json \
+  --source-repositories /path/to/source-repositories.json
+cd ../swift-effects
+./scripts/check-compliance ../swift-linter
+```
+
+`source-repositories.json` maps all five non-engine checkout names to Git URLs
+or local Git paths; use the delivered corrected rules checkout for
+`swift-institute-linter-rules`. Use this explicit mapping (replace the local path):
+
+```json
+{
+  "swift-institute-linter-rules": "/path/to/delivered/swift-institute-linter-rules",
+  "swift-primitives-linter-rules": "https://github.com/swift-molecules/swift-primitives-linter-rules.git",
+  "swift-standards-linter-rules": "https://github.com/swift-standards/swift-standards-linter-rules.git",
+  "swift-linter-rules": "https://github.com/swift-compositions/swift-linter-rules.git",
+  "swift-lint": "https://github.com/swift-molecules/swift-lint.git"
+}
+```
+
+See `swift-linter/scripts/README.md` for additional setup options. Existing checkouts are verified, never reset. Once every
+policy commit is reachable upstream, the source-repositories option can be
+omitted. Ordinary edit/check cycles need no publishing or cache deletion.
+
+**Everyday command, from this package:**
+
+```sh
+./scripts/check-compliance ../swift-linter
+```
+
+This runs the full pinned lint policy, then builds and runs the package tests
+against the committed `Package.resolved`. Exit 0 means both passed; 1 is lint
+violations or suppression review failure, 2 is incomplete measurement, 3 is
+setup/build/test failure, and invalid linter arguments/policy return 64. For a
+quick lint-only iteration, run `../swift-linter/scripts/lint-local check .
+--policy compliance-policy.json` as one line. Pass `--config /path/to/config.json`
+to the gate if using a custom tool configuration.
+
+For **rule development**, edit the local rule checkout and run ordinary
+`lint-local check` or `report` without `--policy`, then run its regression tests.
+The compliance gate intentionally rejects uncommitted tool changes. Review,
+commit and test a rule change before updating the pinned policy; never accept
+new findings or suppressions merely to make the gate pass.

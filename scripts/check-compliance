@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Run the pinned full lint policy and package tests. Invoke from any directory."""
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+PACKAGE = Path(__file__).resolve().parents[1]
+
+
+class Parser(argparse.ArgumentParser):
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        self.exit(64, f"check-compliance: {message}\n")
+
+
+def main():
+    parser = Parser(description=__doc__)
+    parser.add_argument('linter', type=Path, help='checkout containing scripts/lint-local')
+    parser.add_argument('--config', type=Path, help='optional explicit lint-local configuration')
+    args = parser.parse_args()
+    cli = args.linter.expanduser().resolve() / 'scripts/lint-local'
+    if not cli.is_file():
+        print(f'Missing {cli}; follow the README setup first.', file=sys.stderr)
+        return 3
+    policy_path = PACKAGE / 'compliance-policy.json'
+    policy = json.loads(policy_path.read_text())
+    command = [str(cli)]
+    if args.config:
+        command += ['--config', str(args.config.expanduser().resolve())]
+    command += ['check', str(PACKAGE), '--policy', str(policy_path)]
+    code = subprocess.run(command).returncode
+    if code:
+        return code if code in (1, 2, 3, 64) else 3
+    lock = PACKAGE / 'Package.resolved'
+    before = lock.read_bytes()
+    command = ['swift', 'test', '--force-resolved-versions', '--build-system', policy['toolchain']['buildSystem'],
+               '-Xswiftc', '-target', '-Xswiftc', policy['toolchain']['swiftTarget']]
+    print('Running locked package tests: ' + ' '.join(command), flush=True)
+    code = subprocess.run(command, cwd=PACKAGE).returncode
+    if code or lock.read_bytes() != before:
+        print('Compliance incomplete: package build/tests failed or dependency lock changed.', file=sys.stderr)
+        return 3
+    print('COMPLIANCE VERIFIED: full pinned lint policy and package tests passed.')
+    return 0
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main())
+    except (OSError, ValueError, KeyError) as error:
+        print(f'Compliance setup failed: {error}', file=sys.stderr)
+        sys.exit(3)
