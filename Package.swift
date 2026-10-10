@@ -26,6 +26,7 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-effect.git", branch: "main", traits: ["Dependency"]),
         .package(
@@ -53,6 +54,7 @@ let package = Package(
         .target(
             name: "Effects Built-in",
             dependencies: [
+                .product(name: "Process", package: "swift-process"),
                 .product(name: "Effect", package: "swift-effect"),
                 .product(name: "Dependency", package: "swift-dependency"),
                 .target(name: "Effects"),

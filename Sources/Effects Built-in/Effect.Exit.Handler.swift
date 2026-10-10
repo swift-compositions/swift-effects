@@ -1,3 +1,4 @@
+internal import Process
 public import Effect
 public import Witness
 
@@ -28,6 +29,6 @@ extension Effect.Exit.Handler: Effect.Handler.`Protocol`, Witness.`Protocol` {
 extension Effect.Exit.Handler {
 
     public static let live = Effect.Exit.Handler { code in
-        fatalError("Exit with code \(code)")
+        Process.Exit.normal(code)
     }
 }

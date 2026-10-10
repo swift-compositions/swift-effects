@@ -102,7 +102,7 @@ The built-in catalog is deliberately small at this stage:
 
 | Effect | Live behavior | Under test |
 |---|---|---|
-| `Effect.Exit` | Terminates the process (`Value == Never`). The default live handler is a cross-platform `fatalError` fallback; platform packages supply handlers that call the real exit function. | The test handler suspends instead of terminating, so a test can observe the exit request and cancel or time out. |
+| `Effect.Exit` | Terminates the process (`Value == Never`). The default live handler calls `Process.Exit.normal` with the requested status code. | The test handler suspends instead of terminating, so a test can observe the exit request and cancel or time out. |
 | `Effect.Yield` | Delegates to `Task.yield()`. | A custom `Effect.Yield.Handler` can count or suppress yields for deterministic scheduling tests. |
 
 ```swift
@@ -148,3 +148,10 @@ Run `swift test` to exercise cancellation, handler dispatch, spy recording, and 
 ## License
 
 Apache 2.0. See [LICENSE](LICENSE.md).
+
+## Verification
+
+Run `swift test` from this package directory. The suite includes child-process
+checks proving that the live exit effect terminates with both status 0 and status
+37, rather than trapping. The cancellation, recorder, and handler assertions run
+in the same suite.
