@@ -4,7 +4,7 @@ import Synchronization
 extension Effect.Perform {
 
     @usableFromInline
-    final class TaskBox: @unchecked Sendable {
+    final class Dispatch: @unchecked Sendable {
         private let state: Mutex<State>
 
         @usableFromInline
@@ -14,16 +14,7 @@ extension Effect.Perform {
     }
 }
 
-extension Effect.Perform.TaskBox {
-    @usableFromInline
-    enum State {
-        case pending
-        case stored(Task<Void, Never>)
-        case cancelledBeforeStore
-    }
-}
-
-extension Effect.Perform.TaskBox {
+extension Effect.Perform.Dispatch {
 
     @usableFromInline
     func store(_ task: Task<Void, Never>) {

@@ -40,6 +40,7 @@ let package = Package(
             branch: "main"
         ),
         .package(url: "https://github.com/swift-compositions/swift-clocks.git", branch: "main"),
+        .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
     ],
     targets: [
         .target(
@@ -54,6 +55,7 @@ let package = Package(
             dependencies: [
                 .target(name: "Effects"),
                 .product(name: "Witness", package: "swift-witness"),
+                .product(name: "Process", package: "swift-process"),
             ]
         ),
         .target(
@@ -90,17 +92,14 @@ let package = Package(
 )
 
 for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
-    let ecosystem: [SwiftSetting] = [
+    target.swiftSettings = (target.swiftSettings ?? []) + [
         .strictMemorySafety(),
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
         .enableUpcomingFeature("MemberImportVisibility"),
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-        .enableExperimentalFeature("Lifetimes"),
         .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableExperimentalFeature("Lifetimes"),
+        .treatAllWarnings(as: .error),
     ]
-
-    let package: [SwiftSetting] = []
-
-    target.swiftSettings = (target.swiftSettings ?? []) + ecosystem + package
 }

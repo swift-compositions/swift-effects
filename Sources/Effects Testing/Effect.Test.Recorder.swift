@@ -1,5 +1,5 @@
 import Async
-public import Clocks
+import Clocks
 public import Effects
 
 extension Effect.Test {
@@ -9,33 +9,6 @@ extension Effect.Test {
 
         public init() {}
     }
-}
-
-extension Effect.Test.Recorder {
-
-    public struct Invocation: Sendable {
-
-        public let effectType: any Effect.`Protocol`.Type
-
-        public let effect: any Effect.`Protocol` & Sendable
-
-        public let timestamp: Clock.Continuous.Instant
-
-        public let succeeded: Bool
-
-        public init<Recorded: Effect.`Protocol`, Performed: Effect.`Protocol` & Sendable>(
-            effectType: Recorded.Type,
-            effect: Performed,
-            timestamp: Clock.Continuous.Instant,
-            succeeded: Bool
-        ) {
-            self.effectType = effectType
-            self.effect = effect
-            self.timestamp = timestamp
-            self.succeeded = succeeded
-        }
-    }
-
 }
 
 extension Effect.Test.Recorder {
@@ -92,8 +65,6 @@ extension Effect.Test.Recorder {
 
     public struct RecordingHandler<E: Effect.`Protocol`>: Effect.Handler.`Protocol`, Sendable
     where E: Sendable, E.Value: Copyable & Sendable {
-        public typealias Handled = E
-
         private let recorder: Effect.Test.Recorder
         private let inner: Effect.Test.Handler<E>
 
@@ -101,23 +72,26 @@ extension Effect.Test.Recorder {
             self.recorder = recorder
             self.inner = inner
         }
+    }
+}
 
-        public func handle(
-            _ effect: borrowing E,
-            continuation: consuming Effect.Continuation.One<E.Value, E.Failure>
-        ) async {
+extension Effect.Test.Recorder.RecordingHandler {
 
-            let recordedEffect = copy effect
-            let wrapped = continuation.onResume { [recorder] result in
-                let succeeded: Bool
-                switch result {
-                case .success: succeeded = true
-                case .failure: succeeded = false
-                }
-                recorder.record(recordedEffect, succeeded: succeeded)
+    public func handle(
+        _ effect: borrowing E,
+        continuation: consuming Effect.Continuation.One<E.Value, E.Failure>
+    ) async {
+
+        let recordedEffect = copy effect
+        let wrapped = continuation.onResume { [recorder] result in
+            let succeeded: Bool
+            switch result {
+            case .success: succeeded = true
+            case .failure: succeeded = false
             }
-
-            await inner.handle(effect, continuation: wrapped)
+            recorder.record(recordedEffect, succeeded: succeeded)
         }
+
+        await inner.handle(effect, continuation: wrapped)
     }
 }

@@ -17,11 +17,11 @@ extension Effect {
 
         let transfer = Self.Perform.Transfer(effect)
 
-        let dispatchTask = Self.Perform.TaskBox()
+        let dispatch = Self.Perform.Dispatch()
 
         let result: Result<E.Value, E.Failure> = await withTaskCancellationHandler(
             operation: {
-                await withCheckedContinuation(isolation: nil) {
+                await withCheckedContinuation {
                     (swiftContinuation: CheckedContinuation<Result<E.Value, E.Failure>, Never>) in
 
                     let task = Task {
@@ -33,11 +33,11 @@ extension Effect {
                         await handler.handle(transfer.value, continuation: effectContinuation)
                     }
 
-                    dispatchTask.store(task)
+                    dispatch.store(task)
                 }
             },
             onCancel: {
-                dispatchTask.cancel()
+                dispatch.cancel()
             },
             isolation: nil
         )
@@ -63,11 +63,11 @@ extension Effect {
 
         let transfer = Self.Perform.Transfer(effect)
 
-        let dispatchTask = Self.Perform.TaskBox()
+        let dispatch = Self.Perform.Dispatch()
 
         return await withTaskCancellationHandler(
             operation: {
-                await withCheckedContinuation(isolation: nil) {
+                await withCheckedContinuation {
                     (swiftContinuation: CheckedContinuation<E.Value, Never>) in
 
                     let task = Task {
@@ -82,11 +82,11 @@ extension Effect {
                         await handler.handle(transfer.value, continuation: effectContinuation)
                     }
 
-                    dispatchTask.store(task)
+                    dispatch.store(task)
                 }
             },
             onCancel: {
-                dispatchTask.cancel()
+                dispatch.cancel()
             },
             isolation: nil
         )

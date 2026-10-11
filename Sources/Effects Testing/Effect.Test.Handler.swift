@@ -2,9 +2,8 @@ public import Effects
 
 extension Effect.Test {
 
-    public struct Handler<E: Effect.`Protocol`>: Effect.Handler.`Protocol`, Sendable
+    public struct Handler<E: Effect.`Protocol`>: Sendable
     where E: Sendable, E.Value: Copyable & Sendable {
-        public typealias Handled = E
 
         @usableFromInline
         internal let _handle: @Sendable (E) async -> Result<E.Value, E.Failure>
@@ -12,14 +11,17 @@ extension Effect.Test {
         public init(_ handle: @escaping @Sendable (E) async -> Result<E.Value, E.Failure>) {
             self._handle = handle
         }
+    }
+}
 
-        public func handle(
-            _ effect: borrowing E,
-            continuation: consuming Effect.Continuation.One<E.Value, E.Failure>
-        ) async {
-            let result = await _handle(effect)
-            await continuation.resume(with: result)
-        }
+extension Effect.Test.Handler: Effect.Handler.`Protocol` {
+
+    public func handle(
+        _ effect: borrowing E,
+        continuation: consuming Effect.Continuation.One<E.Value, E.Failure>
+    ) async {
+        let result = await _handle(effect)
+        await continuation.resume(with: result)
     }
 }
 
