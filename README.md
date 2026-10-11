@@ -104,7 +104,7 @@ The `Effects Testing` product provides three test doubles:
 | Type | Purpose |
 |---|---|
 | `Effect.Test.Handler<E>` | Returns a canned value (`init(returning:)`), a canned error (`init(throwing:)`), or runs a closure per effect. |
-| `Effect.Test.Spy<E>` | Wraps a handler and records every invocation — effect value, timestamp, and outcome — for `callCount` / `invocations` assertions. |
+| `Effect.Test.Spy<E>` | Wraps a handler and records every invocation — effect value, timestamp, and outcome — for `count` / `invocations` assertions. |
 | `Effect.Test.Recorder` | Type-erased recorder collecting invocations of *different* effect types into one timeline. |
 
 ## Community

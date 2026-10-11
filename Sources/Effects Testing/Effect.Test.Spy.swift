@@ -26,16 +26,8 @@ extension Effect.Test.Spy {
         _invocations.withLock { $0 }
     }
 
-    public var callCount: Int {
+    public var count: Int {
         _invocations.withLock { $0.count }
-    }
-
-    public var lastInvocation: Invocation? {
-        _invocations.withLock { $0.last }
-    }
-
-    public var firstInvocation: Invocation? {
-        _invocations.withLock { $0.first }
     }
 
     private func record(effect: E, outcome: Effect.Outcome<E.Value, E.Failure>) {

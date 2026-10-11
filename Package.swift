@@ -40,6 +40,7 @@ let package = Package(
             branch: "main"
         ),
         .package(url: "https://github.com/swift-compositions/swift-clocks.git", branch: "main"),
+        .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
     ],
     targets: [
@@ -64,6 +65,7 @@ let package = Package(
                 .target(name: "Effects"),
                 .product(name: "Async", package: "swift-async"),
                 .product(name: "Clocks", package: "swift-clocks"),
+                .product(name: "Cardinal", package: "swift-cardinal"),
             ]
         ),
         .testTarget(
@@ -84,7 +86,8 @@ let package = Package(
         .testTarget(
             name: "Effects Testing Tests",
             dependencies: [
-                .target(name: "Effects Testing")
+                .target(name: "Effects Testing"),
+                .product(name: "Cardinal", package: "swift-cardinal"),
             ]
         ),
     ],

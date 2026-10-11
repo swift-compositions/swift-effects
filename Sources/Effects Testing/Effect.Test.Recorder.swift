@@ -1,4 +1,5 @@
 import Async
+public import Cardinal
 import Clocks
 public import Effects
 
@@ -21,12 +22,15 @@ extension Effect.Test.Recorder {
         _invocations.withLock { $0.count }
     }
 
-    internal func record<E: Effect.`Protocol`>(_ effect: E, succeeded: Bool) where E: Sendable {
+    internal func record<E: Effect.`Protocol`>(
+        _ effect: E,
+        outcome: Invocation.Outcome
+    ) where E: Sendable {
         let invocation = Invocation(
-            effectType: E.self,
+            type: E.self,
             effect: effect,
             timestamp: Clock.Continuous.now,
-            succeeded: succeeded
+            outcome: outcome
         )
         _invocations.withLock { $0.append(invocation) }
     }
@@ -41,9 +45,11 @@ extension Effect.Test.Recorder {
         }
     }
 
-    public func count<E: Effect.`Protocol`>(of type: E.Type) -> Int {
+    public func count<E: Effect.`Protocol`>(of type: E.Type) -> Cardinal {
         _invocations.withLock {
-            $0.filter { $0.effect is E }.count
+            $0.reduce(Cardinal.zero) { count, invocation in
+                invocation.effect is E ? count + .one : count
+            }
         }
     }
 }
@@ -52,46 +58,14 @@ extension Effect.Test.Recorder {
 
     public func handler<E: Effect.`Protocol`>(
         wrapping inner: Effect.Test.Handler<E>
-    ) -> RecordingHandler<E> where E: Sendable, E.Value: Copyable & Sendable {
-        RecordingHandler(recorder: self, inner: inner)
+    ) -> Handler<E> where E: Sendable, E.Value: Copyable & Sendable {
+        Handler(recorder: self, inner: inner)
     }
 
     public func handler<E: Effect.`Protocol`>(
         returning value: E.Value
-    ) -> RecordingHandler<E>
+    ) -> Handler<E>
     where E: Sendable, E.Value: Copyable & Sendable, E.Failure == Never {
-        RecordingHandler(recorder: self, inner: Effect.Test.Handler(returning: value))
-    }
-
-    public struct RecordingHandler<E: Effect.`Protocol`>: Effect.Handler.`Protocol`, Sendable
-    where E: Sendable, E.Value: Copyable & Sendable {
-        private let recorder: Effect.Test.Recorder
-        private let inner: Effect.Test.Handler<E>
-
-        internal init(recorder: Effect.Test.Recorder, inner: Effect.Test.Handler<E>) {
-            self.recorder = recorder
-            self.inner = inner
-        }
-    }
-}
-
-extension Effect.Test.Recorder.RecordingHandler {
-
-    public func handle(
-        _ effect: borrowing E,
-        continuation: consuming Effect.Continuation.One<E.Value, E.Failure>
-    ) async {
-
-        let recordedEffect = copy effect
-        let wrapped = continuation.onResume { [recorder] result in
-            let succeeded: Bool
-            switch result {
-            case .success: succeeded = true
-            case .failure: succeeded = false
-            }
-            recorder.record(recordedEffect, succeeded: succeeded)
-        }
-
-        await inner.handle(effect, continuation: wrapped)
+        Handler(recorder: self, inner: Effect.Test.Handler(returning: value))
     }
 }
