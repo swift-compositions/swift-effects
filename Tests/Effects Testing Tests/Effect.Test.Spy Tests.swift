@@ -2,30 +2,30 @@ import Effects
 import Effects_Testing
 import Testing
 
-struct CountEffect: Effect.`Protocol` {
+struct Tally: Effect.`Protocol` {
     let id: Int
 }
 
-extension CountEffect {
+extension Tally {
     typealias Value = Int
     typealias Failure = Never
 }
 
 @Test
 func `spy records invocations`() async {
-    let spy = Effect.Test.Spy<CountEffect>(returning: 100)
+    let spy = Effect.Test.Spy<Tally>(returning: 100)
 
     #expect(spy.callCount == 0)
 
     let cont1 = Effect.Continuation.one {
         @Sendable (_: Result<Int, Never>) async in
     }
-    await spy.handle(CountEffect(id: 1), continuation: cont1)
+    await spy.handle(Tally(id: 1), continuation: cont1)
 
     let cont2 = Effect.Continuation.one {
         @Sendable (_: Result<Int, Never>) async in
     }
-    await spy.handle(CountEffect(id: 2), continuation: cont2)
+    await spy.handle(Tally(id: 2), continuation: cont2)
 
     #expect(spy.callCount == 2)
     #expect(spy.invocations[0].effect.id == 1)
@@ -34,12 +34,12 @@ func `spy records invocations`() async {
 
 @Test
 func `spy reset`() async {
-    let spy = Effect.Test.Spy<CountEffect>(returning: 100)
+    let spy = Effect.Test.Spy<Tally>(returning: 100)
 
     let cont = Effect.Continuation.one {
         @Sendable (_: Result<Int, Never>) async in
     }
-    await spy.handle(CountEffect(id: 1), continuation: cont)
+    await spy.handle(Tally(id: 1), continuation: cont)
 
     #expect(spy.callCount == 1)
 
