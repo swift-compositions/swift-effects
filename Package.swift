@@ -39,7 +39,7 @@ let package = Package(
             url: "https://github.com/swift-atoms/swift-async.git",
             branch: "main"
         ),
-        .package(url: "https://github.com/swift-compositions/swift-clocks.git", branch: "main"),
+        .package(url: "https://github.com/swift-compositions/swift-kernel.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
     ],
@@ -64,7 +64,7 @@ let package = Package(
             dependencies: [
                 .target(name: "Effects"),
                 .product(name: "Async", package: "swift-async"),
-                .product(name: "Clocks", package: "swift-clocks"),
+                .product(name: "Kernel Clock", package: "swift-kernel"),
                 .product(name: "Cardinal", package: "swift-cardinal"),
             ]
         ),

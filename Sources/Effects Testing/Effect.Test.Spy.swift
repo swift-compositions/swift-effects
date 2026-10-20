@@ -1,5 +1,5 @@
 import Async
-import Clocks
+import Kernel_Clock
 public import Effects
 
 extension Effect.Test {

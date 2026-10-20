@@ -1,6 +1,6 @@
 import Async
 public import Cardinal
-import Clocks
+import Kernel_Clock
 public import Effects
 
 extension Effect.Test {

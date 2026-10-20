@@ -1,4 +1,4 @@
-public import Clocks
+public import Kernel_Clock
 public import Effects
 
 extension Effect.Test.Spy {
