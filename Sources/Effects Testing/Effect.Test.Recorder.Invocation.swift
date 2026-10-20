@@ -1,5 +1,5 @@
-public import Kernel_Clock
 public import Effects
+public import Kernel_Clock
 
 extension Effect.Test.Recorder {
 

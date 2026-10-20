@@ -1,6 +1,6 @@
 import Async
-import Kernel_Clock
 public import Effects
+import Kernel_Clock
 
 extension Effect.Test {
 
