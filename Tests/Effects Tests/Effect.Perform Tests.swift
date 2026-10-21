@@ -59,7 +59,11 @@ extension Effect.Perform.Test.Probe {
         Effect.Test.Handler { _ in
             for _ in 0..<500 {
                 if Task.isCancelled { return .success(true) }
-                await Task.yield()
+                do {
+                    try await Task.sleep(for: .milliseconds(10))
+                } catch {
+                    return .success(true)
+                }
             }
             return .success(false)
         }
