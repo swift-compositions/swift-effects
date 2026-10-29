@@ -25,6 +25,9 @@ let package = Package(
             targets: ["Effects Testing"]
         ),
     ],
+    traits: [
+        .trait(name: "EffectsBuiltin", description: "Effects Built-in and the dependencies only it needs"),
+    ],
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-effect.git", branch: "main", traits: ["Dependency"]),
         .package(
@@ -42,9 +45,6 @@ let package = Package(
         .package(url: "https://github.com/swift-compositions/swift-kernel.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
-    ],
-    traits: [
-        .trait(name: "EffectsBuiltin", description: "Effects Built-in and the dependencies only it needs"),
     ],
     targets: [
         .target(
