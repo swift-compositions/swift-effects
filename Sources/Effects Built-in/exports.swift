@@ -1,1 +1,3 @@
-@_exported public import Effects
+#if EffectsBuiltin
+    @_exported public import Effects
+#endif

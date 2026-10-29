@@ -1,31 +1,33 @@
-public import Effects
-public import Witness
+#if EffectsBuiltin
+    public import Effects
+    public import Witness
 
-extension Effect.Yield {
+    extension Effect.Yield {
 
-    public struct Handler: Effect.Handler.`Protocol`, Sendable, Witness.`Protocol` {
-        private let _handle: @Sendable () async -> Void
+        public struct Handler: Effect.Handler.`Protocol`, Sendable, Witness.`Protocol` {
+            private let _handle: @Sendable () async -> Void
 
-        public init(_ handle: @escaping @Sendable () async -> Void) {
-            self._handle = handle
+            public init(_ handle: @escaping @Sendable () async -> Void) {
+                self._handle = handle
+            }
         }
     }
-}
 
-extension Effect.Yield.Handler {
+    extension Effect.Yield.Handler {
 
-    public func handle(
-        _ effect: borrowing Effect.Yield,
-        continuation: consuming Effect.Continuation.One<Void, Never>
-    ) async {
-        await _handle()
-        await continuation.resume()
+        public func handle(
+            _ effect: borrowing Effect.Yield,
+            continuation: consuming Effect.Continuation.One<Void, Never>
+        ) async {
+            await _handle()
+            await continuation.resume()
+        }
     }
-}
 
-extension Effect.Yield.Handler {
+    extension Effect.Yield.Handler {
 
-    public static let live = Effect.Yield.Handler {
-        await Task.yield()
+        public static let live = Effect.Yield.Handler {
+            await Task.yield()
+        }
     }
-}
+#endif

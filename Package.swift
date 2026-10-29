@@ -43,6 +43,9 @@ let package = Package(
         .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
         .package(url: "https://github.com/swift-compositions/swift-process.git", branch: "main"),
     ],
+    traits: [
+        .trait(name: "EffectsBuiltin", description: "Effects Built-in and the dependencies only it needs"),
+    ],
     targets: [
         .target(
             name: "Effects",
@@ -55,8 +58,8 @@ let package = Package(
             name: "Effects Built-in",
             dependencies: [
                 .target(name: "Effects"),
-                .product(name: "Witness", package: "swift-witness"),
-                .product(name: "Process", package: "swift-process"),
+                .product(name: "Witness", package: "swift-witness", condition: .when(traits: ["EffectsBuiltin"])),
+                .product(name: "Process", package: "swift-process", condition: .when(traits: ["EffectsBuiltin"])),
             ]
         ),
         .target(
