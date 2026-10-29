@@ -29,7 +29,7 @@ let package = Package(
         .trait(
             name: "EffectsBuiltin",
             description: "Effects Built-in and the dependencies only it needs"
-        ),
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-effect.git", branch: "main", traits: ["Dependency"]),
