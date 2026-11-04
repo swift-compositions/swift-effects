@@ -1,118 +1,13 @@
 # swift-effects
 
-![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
+Use this package when you describe a side effect as a value and want to perform it from ordinary async code, with the handler picked by the surrounding `Effect.Context` so a test can swap it. Conform the effect to `EffectWithHandler`, point its `HandlerKey` at a handler, and call `Effect.perform(_:)`. The Effects Built-in product adds `Effect.Exit` and `Effect.Yield`. For tests, the Effects Testing product has `Effect.Test.Handler<E>` for canned answers, `Effect.Test.Spy<E>` to watch one effect type and `Effect.Test.Recorder` to watch several on one timeline. If you only need the effect, handler and continuation vocabulary without performing through a context, use swift-effect.
 
-Context-scoped effect handling for Swift concurrency — describe side effects as values, perform them with typed throws, and swap the handler per scope for deterministic tests.
+## Laws
 
-## Key Features
-
-- **Typed throws end-to-end** — `Effect.perform(_:)` returns `E.Value` or throws exactly `E.Failure`; infallible effects (`Failure == Never`) perform without `try`.
-- **Context-scoped handlers** — handlers resolve through dependency-context keys, so a scope override changes behavior without touching call sites.
-- **Test doubles as a separate product** — `Effect.Test.Handler`, `Effect.Test.Spy`, and `Effect.Test.Recorder` live in the `Effects Testing` product, keeping test-only surface out of production builds.
-- **Interceptable built-ins** — `Effect.Exit` and `Effect.Yield` turn process termination and scheduler yields into effects a test can observe instead of suffer.
-
-## Quick Start
-
-An effect is a value describing *what* should happen. The handler deciding *how* is looked up from the current context, so the same call site is non-deterministic in production and fixed in a test scope:
-
-```swift
-import Effects
-import Effects_Testing
-import Dependency
-
-struct RollDice: Effect.`Protocol`, EffectWithHandler {
-    typealias Value = Int
-    typealias Failure = Never
-    typealias HandlerKey = Key
-
-    struct Key: Dependency.Key {
-        typealias Value = Effect.Test.Handler<RollDice>
-        static var liveValue: Value { .init(returning: { _ in Int.random(in: 1...6) }) }
-        static var testValue: Value { liveValue }
-    }
-}
-
-// Override the handler for one scope; the perform call site is unchanged.
-let roll = await Effect.Context.with({ handlers in
-    handlers[RollDice.Key.self] = .init(returning: 4)
-}) {
-    await Effect.perform(RollDice())
-}
-// roll == 4
-```
-
-Fallible effects declare a concrete `Failure` type, and `Effect.perform` throws exactly that type — no `any Error` to downcast at the catch site.
-
-## Installation
-
-No versions are tagged yet; pin to `main`:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/swift-compositions/swift-effects.git", branch: "main")
-]
-```
-
-```swift
-.target(
-    name: "YourTarget",
-    dependencies: [
-        .product(name: "Effects", package: "swift-effects")
-    ]
-),
-.testTarget(
-    name: "YourTargetTests",
-    dependencies: [
-        .product(name: "Effects Testing", package: "swift-effects")
-    ]
-)
-```
-
-### Requirements
-
-- Swift 6.3+
-- macOS 26+, iOS 26+, tvOS 26+, watchOS 26+, visionOS 26+
-
-## Architecture
-
-| Product | Module | When to import |
-|---|---|---|
-| `Effects` | `Effects` | Declaring and performing effects. Re-exports the effect and dependency molecules it builds on, so one import covers `Effect.perform`, `EffectWithHandler`, and `Effect.Context`. |
-| `Effects Built-in` | `Effects_Built_in` | Ready-made `Effect.Exit` and `Effect.Yield`. Re-exports `Effects`. |
-| `Effects Testing` | `Effects_Testing` | Test doubles for asserting on performed effects. Test targets only. |
-
-## Built-in Effects
-
-The built-in catalog is deliberately small at this stage:
-
-| Effect | Live behavior | Under test |
-|---|---|---|
-| `Effect.Exit` | Terminates the process (`Value == Never`). The default live handler is a cross-platform `fatalError` fallback; platform packages supply handlers that call the real exit function. | The test handler suspends instead of terminating, so a test can observe the exit request and cancel or time out. |
-| `Effect.Yield` | Delegates to `Task.yield()`. | A custom `Effect.Yield.Handler` can count or suppress yields for deterministic scheduling tests. |
-
-```swift
-import Effects_Built_in
-
-await Effect.Exit.perform(code: 1)   // never returns in production
-await Effect.Yield.perform()
-```
-
-## Testing
-
-The `Effects Testing` product provides three test doubles:
-
-| Type | Purpose |
-|---|---|
-| `Effect.Test.Handler<E>` | Returns a canned value (`init(returning:)`), a canned error (`init(throwing:)`), or runs a closure per effect. |
-| `Effect.Test.Spy<E>` | Wraps a handler and records every invocation — effect value, timestamp, and outcome — for `count` / `invocations` assertions. |
-| `Effect.Test.Recorder` | Type-erased recorder collecting invocations of *different* effect types into one timeline. |
-
-## Community
-
-<!-- BEGIN: discussion -->
-*Discussion thread will be created at first public release.*
-<!-- END: discussion -->
-
-## License
-
-Apache 2.0. See [LICENSE](LICENSE.md).
+- `Effect.perform(_:)` reads the handler from `Effect.Context.current` under the effect's `HandlerKey` when it is called, so the innermost scope that sets that key wins.
+- The handler runs in a new task, not in the caller's task. Cancelling the caller cancels that task, even when cancellation arrives before that task exists.
+- Cancellation never ends a perform by itself. `Effect.perform(_:)` returns only when the handler resumes its continuation, so a handler that ignores cancellation keeps the caller waiting.
+- `Effect.Exit.Handler.live` ends the process normally with the effect's `code`. The test value of `Effect.Exit.Handler.Key` suspends for ever and never returns, even when cancelled.
+- `Effect.Yield.Handler.live` calls `Task.yield()`, and it is the test value as well.
+- `Effect.Test.Spy<E>` and `Effect.Test.Recorder` record an invocation when the handler resumes its continuation, not when it is called. Invocations are kept in that order, timestamped with the continuous clock at that moment. A handler that never resumes leaves no record.
+- `Effect.Test.Recorder.Invocation.Outcome` keeps only whether the handler succeeded or failed. `Effect.Test.Spy.Invocation` keeps the full `Effect.Outcome`.
