@@ -3,23 +3,25 @@ import Effects
 import Effects_Testing
 import Testing
 
-extension Effect.Perform {
+enum `Effect.Perform Tests` {}
+
+extension `Effect.Perform Tests` {
     @Suite struct Test {
         struct Unit {}
     }
 }
 
-extension Effect.Perform.Test {
+extension `Effect.Perform Tests`.Test {
     enum Constant {}
     enum Probe {}
 }
 
-extension Effect.Perform.Test.Constant {
+extension `Effect.Perform Tests`.Test.Constant {
     struct Infallible: Effect.`Protocol`, EffectWithHandler {}
     struct Fallible: Effect.`Protocol`, EffectWithHandler {}
 }
 
-extension Effect.Perform.Test.Constant.Infallible {
+extension `Effect.Perform Tests`.Test.Constant.Infallible {
     typealias Value = Int
     typealias Failure = Never
     typealias HandlerKey = Key
@@ -27,14 +29,14 @@ extension Effect.Perform.Test.Constant.Infallible {
     struct Key: Dependency.Key {}
 }
 
-extension Effect.Perform.Test.Constant.Infallible.Key {
-    static var liveValue: Effect.Test.Handler<Effect.Perform.Test.Constant.Infallible> {
+extension `Effect.Perform Tests`.Test.Constant.Infallible.Key {
+    static var liveValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Infallible> {
         Effect.Test.Handler(returning: 0)
     }
-    static var testValue: Effect.Test.Handler<Effect.Perform.Test.Constant.Infallible> { liveValue }
+    static var testValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Infallible> { liveValue }
 }
 
-extension Effect.Perform.Test.Constant.Fallible {
+extension `Effect.Perform Tests`.Test.Constant.Fallible {
     typealias Value = Int
     typealias HandlerKey = Key
 
@@ -42,14 +44,14 @@ extension Effect.Perform.Test.Constant.Fallible {
     struct Key: Dependency.Key {}
 }
 
-extension Effect.Perform.Test.Constant.Fallible.Key {
-    static var liveValue: Effect.Test.Handler<Effect.Perform.Test.Constant.Fallible> {
-        Effect.Test.Handler(throwing: Effect.Perform.Test.Constant.Fallible.Failure())
+extension `Effect.Perform Tests`.Test.Constant.Fallible.Key {
+    static var liveValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Fallible> {
+        Effect.Test.Handler(throwing: `Effect.Perform Tests`.Test.Constant.Fallible.Failure())
     }
-    static var testValue: Effect.Test.Handler<Effect.Perform.Test.Constant.Fallible> { liveValue }
+    static var testValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Fallible> { liveValue }
 }
 
-extension Effect.Perform.Test.Probe {
+extension `Effect.Perform Tests`.Test.Probe {
     struct Infallible: Effect.`Protocol`, EffectWithHandler {}
     struct Fallible: Effect.`Protocol`, EffectWithHandler {}
 
@@ -70,7 +72,7 @@ extension Effect.Perform.Test.Probe {
     }
 }
 
-extension Effect.Perform.Test.Probe.Infallible {
+extension `Effect.Perform Tests`.Test.Probe.Infallible {
     typealias Value = Bool
     typealias Failure = Never
     typealias HandlerKey = Key
@@ -78,14 +80,14 @@ extension Effect.Perform.Test.Probe.Infallible {
     struct Key: Dependency.Key {}
 }
 
-extension Effect.Perform.Test.Probe.Infallible.Key {
-    static var liveValue: Effect.Test.Handler<Effect.Perform.Test.Probe.Infallible> { testValue }
-    static var testValue: Effect.Test.Handler<Effect.Perform.Test.Probe.Infallible> {
-        Effect.Perform.Test.Probe.observe(Effect.Perform.Test.Probe.Infallible.self)
+extension `Effect.Perform Tests`.Test.Probe.Infallible.Key {
+    static var liveValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Probe.Infallible> { testValue }
+    static var testValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Probe.Infallible> {
+        `Effect.Perform Tests`.Test.Probe.observe(`Effect.Perform Tests`.Test.Probe.Infallible.self)
     }
 }
 
-extension Effect.Perform.Test.Probe.Fallible {
+extension `Effect.Perform Tests`.Test.Probe.Fallible {
     typealias Value = Bool
     typealias HandlerKey = Key
 
@@ -93,25 +95,25 @@ extension Effect.Perform.Test.Probe.Fallible {
     struct Key: Dependency.Key {}
 }
 
-extension Effect.Perform.Test.Probe.Fallible.Key {
-    static var liveValue: Effect.Test.Handler<Effect.Perform.Test.Probe.Fallible> { testValue }
-    static var testValue: Effect.Test.Handler<Effect.Perform.Test.Probe.Fallible> {
-        Effect.Perform.Test.Probe.observe(Effect.Perform.Test.Probe.Fallible.self)
+extension `Effect.Perform Tests`.Test.Probe.Fallible.Key {
+    static var liveValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Probe.Fallible> { testValue }
+    static var testValue: Effect.Test.Handler<`Effect.Perform Tests`.Test.Probe.Fallible> {
+        `Effect.Perform Tests`.Test.Probe.observe(`Effect.Perform Tests`.Test.Probe.Fallible.self)
     }
 }
 
-extension Effect.Perform.Test.Unit {
+extension `Effect.Perform Tests`.Test.Unit {
 
     @Test
     func `perform returns handler value`() async {
-        let handler = Effect.Test.Handler<Effect.Perform.Test.Constant.Infallible>(returning: 42)
+        let handler = Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Infallible>(returning: 42)
 
         let result = await Effect.Context.with(
             { handlers in
-                handlers[Effect.Perform.Test.Constant.Infallible.Key.self] = handler
+                handlers[`Effect.Perform Tests`.Test.Constant.Infallible.Key.self] = handler
             },
             operation: {
-                await Effect.perform(Effect.Perform.Test.Constant.Infallible())
+                await Effect.perform(`Effect.Perform Tests`.Test.Constant.Infallible())
             }
         )
 
@@ -120,22 +122,22 @@ extension Effect.Perform.Test.Unit {
 
     @Test
     func `perform throws handler error`() async {
-        let handler = Effect.Test.Handler<Effect.Perform.Test.Constant.Fallible>(
-            throwing: Effect.Perform.Test.Constant.Fallible.Failure()
+        let handler = Effect.Test.Handler<`Effect.Perform Tests`.Test.Constant.Fallible>(
+            throwing: `Effect.Perform Tests`.Test.Constant.Fallible.Failure()
         )
 
-        do throws(Effect.Perform.Test.Constant.Fallible.Failure) {
+        do throws(`Effect.Perform Tests`.Test.Constant.Fallible.Failure) {
             _ = try await Effect.Context.with(
                 { handlers in
-                    handlers[Effect.Perform.Test.Constant.Fallible.Key.self] = handler
+                    handlers[`Effect.Perform Tests`.Test.Constant.Fallible.Key.self] = handler
                 },
-                operation: { () async throws(Effect.Perform.Test.Constant.Fallible.Failure) -> Int in
-                    try await Effect.perform(Effect.Perform.Test.Constant.Fallible())
+                operation: { () async throws(`Effect.Perform Tests`.Test.Constant.Fallible.Failure) -> Int in
+                    try await Effect.perform(`Effect.Perform Tests`.Test.Constant.Fallible())
                 }
             )
             Issue.record("Expected error to be thrown")
         } catch {
-            #expect(error == Effect.Perform.Test.Constant.Fallible.Failure())
+            #expect(error == `Effect.Perform Tests`.Test.Constant.Fallible.Failure())
         }
     }
 
@@ -144,9 +146,9 @@ extension Effect.Perform.Test.Unit {
         let task = Task {
             await Effect.Context.with(
                 { handlers in
-                    handlers[Effect.Perform.Test.Probe.Infallible.Key.self] = Effect.Perform.Test.Probe.Infallible.Key.testValue
+                    handlers[`Effect.Perform Tests`.Test.Probe.Infallible.Key.self] = `Effect.Perform Tests`.Test.Probe.Infallible.Key.testValue
                 },
-                operation: { await Effect.perform(Effect.Perform.Test.Probe.Infallible()) }
+                operation: { await Effect.perform(`Effect.Perform Tests`.Test.Probe.Infallible()) }
             )
         }
 
@@ -162,11 +164,11 @@ extension Effect.Perform.Test.Unit {
         let task = Task {
             await Effect.Context.with(
                 { handlers in
-                    handlers[Effect.Perform.Test.Probe.Fallible.Key.self] = Effect.Perform.Test.Probe.Fallible.Key.testValue
+                    handlers[`Effect.Perform Tests`.Test.Probe.Fallible.Key.self] = `Effect.Perform Tests`.Test.Probe.Fallible.Key.testValue
                 },
                 operation: { () async -> Bool in
-                    do throws(Effect.Perform.Test.Probe.Fallible.Failure) {
-                        return try await Effect.perform(Effect.Perform.Test.Probe.Fallible())
+                    do throws(`Effect.Perform Tests`.Test.Probe.Fallible.Failure) {
+                        return try await Effect.perform(`Effect.Perform Tests`.Test.Probe.Fallible())
                     } catch {
                         return false
                     }
