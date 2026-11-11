@@ -3,7 +3,7 @@
 
     extension Effect {
 
-        public struct Exit: Effect.`Protocol`, EffectWithHandler, Sendable {
+        public struct Exit: Effect.`Protocol`, Effect.Handled, Sendable {
 
             public let code: Int32
 

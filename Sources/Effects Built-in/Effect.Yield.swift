@@ -3,7 +3,7 @@
 
     extension Effect {
 
-        public struct Yield: Effect.`Protocol`, EffectWithHandler, Sendable {
+        public struct Yield: Effect.`Protocol`, Effect.Handled, Sendable {
             public init() {}
         }
     }

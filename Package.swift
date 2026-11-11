@@ -69,16 +69,10 @@ let package = Package(
             name: "Effects Testing",
             dependencies: [
                 .target(name: "Effects"),
+                .product(name: "Effect Test Support", package: "swift-effect"),
                 .product(name: "Async", package: "swift-async"),
                 .product(name: "Kernel Clock", package: "swift-kernel"),
                 .product(name: "Cardinal", package: "swift-cardinal"),
-            ]
-        ),
-        .testTarget(
-            name: "Effects Tests",
-            dependencies: [
-                .target(name: "Effects"),
-                .target(name: "Effects Testing"),
             ]
         ),
         .testTarget(
